@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>布罗代尔·阿拉伯海航与“莫桑比克激流”历史地理示意图</title>
+    <!-- Leaflet 核心库 (CSS + JS) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- 字体与额外样式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Noto Sans', system-ui, 'Microsoft YaHei', sans-serif;
+            background: #faf8f2;
+            color: #2c3e2f;
+        }
+        .header {
+            background: #2c5a2e;
+            color: #f9eed7;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-top: 0.3rem;
+            font-style: italic;
+        }
+        .map-container {
+            position: relative;
+            margin: 1.5rem 2rem;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 2px solid #e0c8a0;
+        }
+        #map {
+            height: 560px;
+            width: 100%;
+            background: #cfdbe5;
+        }
+        .legend-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 248, 235, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-left: 5px solid #b6622c;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 260px;
+            line-height: 1.4;
+        }
+        .legend-panel h4 {
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            color: #8b3c1c;
+        }
+        .legend-panel ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .legend-panel li {
+            margin: 4px 0;
+        }
+        .info-card {
+            background: #fffaf0;
+            margin: 0 2rem 2rem 2rem;
+            border-radius: 20px;
+            padding: 1rem 1.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e3d5b5;
+        }
+        .info-card h3 {
+            color: #7b3f18;
+            border-left: 5px solid #b47c44;
+            padding-left: 12px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .flex-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        .stat-box {
+            background: #f3ede1;
+            border-radius: 18px;
+            padding: 12px 18px;
+            flex: 1;
+            min-width: 180px;
+            border: 1px solid #dfcca8;
+        }
+        .stat-box strong {
+            color: #b45f2b;
+        }
+        .cost-note {
+            font-size: 0.9rem;
+            background: #e7dfcf;
+            border-radius: 14px;
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #5e5b4b;
+            border-top: 1px solid #e2d6c0;
+            margin-top: 1rem;
+        }
+        @media (max-width: 700px) {
+            .map-container { margin: 1rem; }
+            .info-card { margin: 0 1rem 1.5rem 1rem; }
+            .legend-panel { bottom: 10px; right: 10px; font-size: 0.7rem; max-width: 210px; }
+        }
+        .leaflet-popup-content {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>🌊 布罗代尔的追问：阿拉伯的海权悖论</h1>
+    <p>“莫桑比克的可怕激流” vs “苏伊士运河的便利” —— 为何穆斯林商人止步大西洋？ | 基于《菲利普二世时代的地中海和地中海世界》历史地理重构</p>
+</div>
+
+<div class="map-container">
+    <div id="map"></div>
+    <div class="legend-panel">
+        <h4>🗺️ 图例 · 历史地理逻辑</h4>
+        <ul>
+            <li><span style="background:#c0392b; display:inline-block; width:12px; height:12px; border-radius:50%;"></span> <strong>莫桑比克激流区</strong> (强劲南向海流 + 湍流)</li>
+            <li><span style="background:#2e86c1; width:12px; height:12px; display:inline-block; border-radius:2px;"></span> 古老运河通道 (苏伊士地峡)</li>
+            <li><span style="background:#27ae60; width:12px; height:2px; display:inline-block; vertical-align:middle;"></span> 🌿 季风贸易航线 (印度洋成熟网络)</li>
+            <li><span style="background:#e67e22; width:12px; height:2px; display:inline-block;"></span> ⛔ 受阻探索路径 (激流/风暴阻挡)</li>
+            <li><span style="border-bottom:2px dashed #8e44ad;">🪨 好望角(海角)</span> 大西洋门槛</li>
+        </ul>
+        <div style="margin-top: 6px; font-size:0.7rem; border-top:1px solid #ddd; padding-top:4px;">⚓ 点击标注查看布罗代尔原文关联细节</div>
+    </div>
+</div>
+
+<div class="info-card">
+    <h3>📜 历史情境 · 成本与战略抉择</h3>
+    <p>布罗代尔指出：阿拉伯人虽拥有高质量船只和季风航海术，却基本止步于莫桑比克激流之前。同时他们握有一条沟通红海与地中海的运河（12-13世纪），相较冒险南下风暴角，运河通道带来了无可比拟的 <strong>低成本、低风险、高回报</strong> 。</p>
+    <div class="flex-stats">
+        <div class="stat-box">
+            <strong>🚢 苏伊士运河路线</strong><br>
+            📍 红海→地中海 <strong>~200 km</strong><br>
+            🕒 航程: 数日<br>
+            💰 成本: 过路税 + 维护, 但节省巨量时间<br>
+            ✅ 风险: 低 (无外洋风暴)<br>
+            🏛️ 链接: 埃及, 黎凡特, 欧洲财富心脏
+        </div>
+        <div class="stat-box">
+            <strong>🌊 好望角路线 (绕行非洲)</strong><br>
+            📍 红海→好望角→西欧 <strong>≈ 11,000海里</strong><br>
+            🕒 航程: 6~9个月 (依赖季风)<br>
+            💰 成本: 极高(船只损耗, 坏血病, 探索性沉没率30%+)<br>
+            ⚠️ 风险: “莫桑比克激流” + 风暴角狂暴海况
+        </div>
+    </div>
+    <div class="cost-note">
+        💡 <strong>历史对比推演</strong>：在15世纪之前，穆斯林商人通过运河/陆桥转运香料、奢侈品至地中海，每吨货物的综合成本仅为好望角路线的 <strong>1/6 ~ 1/8</strong>，且无“黑暗海”未知恐惧。当达伽马依靠阿拉伯领航员横渡印度洋时，恰证明了阿拉伯航海技术的精湛——然而技术优势并未转化为大西洋探索，正是因为 <strong>激流+运河便利性</strong> 形成了路径依赖。地图上标注的“激流”会猛烈把船只推向南方“黑暗海”之门，使得南下成为赌命之旅。
+    </div>
+</div>
+
+<footer>
+    示意图依据费尔南·布罗代尔《地中海与菲利普二世时代的地中海世界》描述生成 | 地理数据基于OSM及历史航道重构 | 用于辅助理解历史地理因果关系
+</footer>
+
+<script>
+    (function() {
+        // 初始化地图：视野范围覆盖红海、东非、好望角及马达加斯加区域
+        var map = L.map('map').setView([-15, 38], 5.2);  // 中心对准莫桑比克海峡及非洲东部
+
+        // 瓦片图层 (优雅地形风格)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 8,
+            minZoom: 4
+        }).addTo(map);
+
+        // ---------- 1. 莫桑比克“可怕激流”区域标注 (多边形 + 箭头样式) ----------
+        // 激流核心区: 莫桑比克海峡南部到德班附近外海，南向强劲海流区域
+        var currentZone = L.polygon([
+            [-22.5, 35.8],   // 海峡南部莫桑比克沿岸
+            [-26.8, 33.5],   // 南非东北部外海
+            [-29.5, 34.0],   // 更南推至黑暗海门槛
+            [-27.5, 37.2],   // 东南靠近马达加斯加南端
+            [-24.2, 39.0],   // 南部马达加斯加以西
+            [-21.0, 37.2]    // 回到海峡中段
+        ], {
+            color: "#c0392b",
+            weight: 2,
+            fillColor: "#e67e22",
+            fillOpacity: 0.25,
+            dashArray: "3, 5",
+            className: "current-zone"
+        }).addTo(map);
+        currentZone.bindPopup(`
+            <strong>🌊 莫桑比克可怕激流</strong><br>
+            “猛烈地把船只推向南方，推到黑暗海的大门口。”<br>
+            流速高达2-3节，逆流航行极困难，帆船极易失控。<br>
+            阿拉伯商人因此止步于桑给巴尔/索法拉以南。
+        `);
+
+        // 添加激流方向动态箭头 (使用小图标 + 额外线)
+        // 使用几个箭头标记 (Canvas? 简便用带方向icon的Marker)
+        var arrowIcon = L.divIcon({
+            html: '⬇️➡️',
+            iconSize: [24,24],
+            className: 'flow-arrow',
+            popupAnchor: [0, -10]
+        });
+        // 布置几个示意箭头
+        var flowPoints = [[-23.5, 37.2], [-25.2, 35.6], [-27.5, 34.5], [-28.8, 34.8]];
+        flowPoints.forEach(function(pt) {
+            L.marker(pt, {icon: arrowIcon, interactive: false}).addTo(map);
+        });
+        // 辅助流线 (曲线 polyline)
+        var flowLines = L.polyline([
+            [-21.8, 37.0], [-23.2, 36.1], [-25.0, 35.0], [-27.2, 34.2], [-29.0, 33.8]
+        ], {color: "#c0392b", weight: 2, opacity: 0.6, dashArray: "8, 6"}).addTo(map);
+        flowLines.bindPopup("强南向莫桑比克海流 + 涡流区，阻碍北返");
+
+        // ---------- 2. 苏伊士运河 (历史水道示意) ----------
+        // 运河连接红海苏伊士湾至地中海塞得港附近 (简化线)
+        var suezCanalLine = L.polyline([
+            [30.5, 32.5],   // 塞得港附近地中海入口
+            [30.0, 32.55], 
+            [29.9, 32.55],  // 大苦湖区域
+            [29.5, 32.55],
+            [29.0, 32.6],
+            [28.8, 32.75],  // 苏伊士湾顶
+        ], {
+            color: "#2e86c1",
+            weight: 4,
+            opacity: 0.9,
+            lineJoin: "round"
+        }).addTo(map);
+        suezCanalLine.bindPopup(`
+            <strong>🏛️ 苏伊士运河 (12-13世纪存在运河)</strong><br>
+            布罗代尔原文:「他们既然拥有一条沟通苏伊士地峡的运河（十二至十三世纪），又何必去海角另辟新路」<br>
+            连通印度洋-地中海贸易圈，成本低廉，无需冒大西洋风浪。
+        `);
+        // 运河图标点
+        L.marker([30.0, 32.55], {
+            icon: L.divIcon({html: '⚓', iconSize: [20,20], className: 'port-icon'})
+        }).addTo(map).bindPopup("古运河中枢—大苦湖区域，连接红海与地中海");
+
+        // 红海-地中海便捷通道标注
+        L.marker([29.0, 32.8], {icon: L.divIcon({html: '🔁', iconSize: [20,20]})}).addTo(map).bindPopup("古代运河/陆桥转运枢纽，绕开好望角");
+
+        // ---------- 3. 好望角 (海角) 和黑暗海大门 ----------
+        var capePoint = L.marker([-34.358, 18.472], {
+            icon: L.divIcon({html: '🪨', iconSize: [26,26], className: 'cape-icon'})
+        }).addTo(map);
+        capePoint.bindPopup(`
+            <strong>好望角 (Cabo das Tormentas / Cape of Good Hope)</strong><br>
+            “海角” = 风暴角，大西洋与印度洋交界。<br>
+            达伽马绕过这里后才打通欧洲直航印度洋的航线，但阿拉伯人从未系统探索此区域。
+        `);
+        // 附加标注 "黑暗海的大门" 大西洋南部 
+        L.marker([-31.5, 12.8], {
+            icon: L.divIcon({html: '🌑', iconSize: [24,24]}),
+        }).addTo(map).bindPopup("「黑暗海」大门，中世纪欧洲与阿拉伯文献中的未知海域，充满神话恐惧");
+        
+        // ---------- 4. 印度洋季风航线 (阿拉伯商人成熟网络) ----------
+        // 主要传统航线：阿拉伯半岛 (马斯喀特) → 卡利卡特 ，以及南下东非的支线，展示其为成熟三角贸易
+        var monssonRoute1 = L.polyline([
+            [23.6, 58.5],   // 马斯喀特附近
+            [18.2, 66.0],   // 阿拉伯海
+            [15.0, 73.5],   // 马拉巴尔海岸 卡利卡特
+        ], {color: "#27ae60", weight: 3, dashArray: "8, 8", opacity: 0.8}).addTo(map);
+        monssonRoute1.bindPopup("季风航线 (东北季风) : 阿拉伯→印度西海岸，香料/纺织品贸易主干");
+        
+        var monssonRoute2 = L.polyline([
+            [12.8, 45.0],   // 亚丁湾
+            [8.5, 49.5],
+            [4.5, 52.8],    // 索马里海岸
+            [-3.0, 40.5],   // 蒙巴萨/桑给巴尔
+            [-6.2, 39.3],   // 基尔瓦
+        ], {color: "#2ecc71", weight: 2.5, dashArray: "6, 8", opacity: 0.7}).addTo(map);
+        monssonRoute2.bindPopup("东非航线：利用季风往返于阿拉伯半岛与黄金/象牙产地，远至索法拉 (莫桑比克中部)。但在激流前停止。");
+        
+        // 标注“凭借季风的直线航行”
+        L.marker([5.0, 52.0], {icon: L.divIcon({html: '🌬️', iconSize: [24,24]})}).addTo(map).bindPopup("季候风交替航行：冬季东北风南下，夏季西南风北上，阿拉伯航海者精湛的操船技艺。");
+        
+        // ---------- 5. 受阻探索路径 (向南意图被激流阻挡) ----------
+        var blockedRoute = L.polyline([
+            [-8.0, 39.2],   // 基尔瓦以南
+            [-12.5, 40.2],
+            [-18.5, 38.3],  // 索法拉地区
+            [-22.0, 36.8],  // 遇到激流强区
+            [-27.2, 34.8],  // 被迫停滞
+        ], {color: "#e67e22", weight: 2.5, opacity: 0.9, dashArray: "4, 6", lineCap: "round"}).addTo(map);
+        blockedRoute.bindPopup(`
+            <strong>⛔ 阿拉伯探索的边界</strong><br>
+            “在桑给巴尔和马达加斯加以南海域的航行何以遇到‘莫桑比克的可怕激流’就基本停止”<br>
+            船只被激流推向南端，无法安全返航 → 放弃向南深入。
+        `);
+        
+        // 额外辅助点：索法拉 (黄金贸易终点)
+        L.marker([-19.8, 34.9], {icon: L.divIcon({html: '⛏️', iconSize: [20,20]})}).addTo(map).bindPopup("索法拉 (Sofala) 早期穆斯林贸易站，南部极限，再向南就是激流区");
+        
+        // 马达加斯加标注
+        L.marker([-18.7, 46.8], {icon: L.divIcon({html: '🌴', iconSize: [20,20]})}).addTo(map).bindPopup("马达加斯加：阿拉伯人曾航行至其南部海域，但激流迫使他们回头");
+        
+        // 6. 额外显示运河对比和好望角绕行路线成本示意: 增加从红海到好望角的虚拟距离线(以作视觉对比)
+        var longCapeRoute = L.polyline([
+            [28.5, 33.2],   // 苏伊士湾
+            [22.0, 36.0],
+            [15.0, 41.5],
+            [0.0, 48.0],
+            [-10.5, 42.5],
+            [-20.0, 38.0],
+            [-29.0, 32.5],
+            [-34.0, 18.5],  // 好望角
+        ], {color: "#a569bd", weight: 1.8, opacity: 0.5, dashArray: "2, 8", className: "long-route"}).addTo(map);
+        longCapeRoute.bindPopup("绕行好望角的潜在路线（15世纪前极少穆斯林尝试）→ 极端漫长、昂贵、未知风险。");
+        
+        // 标注“沟通苏伊士运河的优势”视觉提示: 地中海方向
+        L.marker([31.2, 29.9], {icon: L.divIcon({html: '🏛️', iconSize: [20,20]})}).addTo(map).bindPopup("地中海贸易世界：阿拉伯通过运河直接进入欧洲、拜占庭市场，无需求索大西洋。");
+        
+        // 添加图例中未覆盖的季风文字 —— 季风环流箭头示意（装饰性）
+        var monsoonWindMarker = L.marker([9.5, 62.5], {
+            icon: L.divIcon({html: '↗️ 冬季东北季风', iconSize: [60,20], className: 'wind-label'})
+        }).addTo(map);
+        monsoonWindMarker.bindPopup("冬季从阿拉伯海吹向印度，夏季反向，构成规律航行窗口");
+        
+        // 增强激流影响范围: 再添加一个半透明区域 (莫桑比克海峡水流复杂)
+        var extraCurrentArea = L.circle([-24.5, 36.8], {radius: 320000, color: '#e67e22', weight: 1, fillOpacity: 0.1}).addTo(map);
+        extraCurrentArea.bindPopup("激流核心区：流速快，伴有浅滩与暗礁，中世纪帆船难以抵进。");
+        
+        // 添加比例尺和简单装饰
+        L.control.scale({metric: true, imperial: false, position: 'bottomleft'}).addTo(map);
+        
+        // 最后，添加一个主要信息点（呼应原文: 阿拉伯领航员为达伽马领航的故事）
+        var pilotSpot = L.marker([-3.6, 40.5], {icon: L.divIcon({html: '🧭', iconSize: [22,22]})}).addTo(map);
+        pilotSpot.bindPopup(`
+            《华斯哥·达·伽马的阿拉伯领航员从梅兰德开始为葡萄牙船队领航》<br>
+            阿拉伯人拥有卓越航海知识及等高仪／星盘，却未称霸世界，根因在于“激流屏障”与“运河便利”双重作用。
+        `);
+        
+        // 在红海北部显式标注"古代苏伊士运河"的港口
+        L.marker([29.97, 32.55], {icon: L.divIcon({html: '🏺', iconSize: [22,22]})}).addTo(map).bindPopup("古运河遗址区域 (12-13世纪可通航)","维持了穆斯林与地中海的直接联系");
+        
+        // 调整视图确保好望角和苏伊士都在视野内，加一个范围修正
+        map.fitBounds([[31.2, 18.0], [-35.5, 58.0]]);
+    })();
+</script>
+</body>
+</html>
